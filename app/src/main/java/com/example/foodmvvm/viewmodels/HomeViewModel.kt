@@ -4,9 +4,11 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.foodmvvm.db.MealDatabase
 import com.example.foodmvvm.pojo.*
 import com.example.foodmvvm.retrofit.RetrofitInstance
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -19,6 +21,8 @@ class HomeViewModel(
     private var popularMealLiveData=MutableLiveData<List<MealsByCategory>>()
     private var categoryListLiveData=MutableLiveData<List<Category>>()
     private var favouriteMealLiveData=mealDatabase.mealDao().getAllMeals()
+    private var bottomSheetMealLiveData= MutableLiveData<Meal>()
+    private var searchedMealLiveData= MutableLiveData<List<Meal>>()
 
     fun getRandomMeal(){
         RetrofitInstance.api.getRandomMeal().enqueue(object : Callback<MealList> {
@@ -39,6 +43,28 @@ class HomeViewModel(
             }
 
         })
+    }
+
+    fun getMealById(id: String){
+
+        RetrofitInstance.api.getMealDetails(id).enqueue(object :Callback<MealList>{
+            override fun onResponse(call: Call<MealList>, response: Response<MealList>) {
+
+                val meal=response.body()?.meals?.first()
+
+                meal?.let {meal->
+                    bottomSheetMealLiveData.postValue(meal)
+
+                }
+
+            }
+
+            override fun onFailure(call: Call<MealList>, t: Throwable) {
+                Log.e("HomeViewModel",t.message.toString())
+            }
+
+        })
+
     }
 
     fun getPopularMeals(){
@@ -70,6 +96,36 @@ class HomeViewModel(
         })
     }
 
+    fun deleteMeal(meal: Meal){
+        viewModelScope.launch {
+            mealDatabase.mealDao().delete(meal)
+        }
+    }
+
+    fun insertMeal(meal: Meal){
+        viewModelScope.launch {
+            mealDatabase.mealDao().upsert(meal)
+        }
+    }
+
+    fun searchMeal(searchedQuery:String){
+        RetrofitInstance.api.searchMeals(searchedQuery).enqueue(object: Callback<MealList>{
+            override fun onResponse(call: Call<MealList>, response: Response<MealList>) {
+                val mealList=response.body()?.meals
+                    mealList?.let {meal->
+                        searchedMealLiveData.postValue(meal)
+                    }
+            }
+
+            override fun onFailure(call: Call<MealList>, t: Throwable) {
+                Log.e("Home Fragment",t.message.toString())
+            }
+
+        })
+    }
+
+    fun observeSearchedMealsLiveData():LiveData<List<Meal>> = searchedMealLiveData
+
 
     fun observeRandomMealLiveData():LiveData<Meal>{
         return randomMealLiveData
@@ -86,6 +142,8 @@ class HomeViewModel(
     fun observeFavouriteMealListLiveData() : LiveData<List<Meal>>{
         return favouriteMealLiveData
     }
+
+    fun observeBottomSheetMealLiveData() : LiveData<Meal> = bottomSheetMealLiveData
 
 
 }

@@ -12,6 +12,7 @@ class PopularMealAdapter():RecyclerView.Adapter<PopularMealAdapter.PopularMealVi
 
     private var mealsList= ArrayList<MealsByCategory>()
     lateinit var onItemClick: ((MealsByCategory)->Unit)
+    var onItemLongClick: ((MealsByCategory)->Unit)?=null
 
     fun setMeals(mealList: ArrayList<MealsByCategory>){
         this.mealsList=mealList
@@ -33,6 +34,11 @@ class PopularMealAdapter():RecyclerView.Adapter<PopularMealAdapter.PopularMealVi
 
         holder.itemView.setOnClickListener {
             onItemClick.invoke(mealsList[position])
+        }
+
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick?.invoke(mealsList[position])
+            true
         }
     }
 

@@ -32,8 +32,9 @@ class CategoryMealsActivity : AppCompatActivity() {
         categoryMealsViewModel.getMealsByCategory(intent.getStringExtra(HomeFragment.CATEGORY_NAME)!!)
 
         categoryMealsViewModel.observeMealsLiveData().observe(this, Observer { mealsList->
-
-            binding.tvCategoryCount.text=mealsList.size.toString()
+            val mealListCount=mealsList.size
+            val categoryName=intent.getStringExtra(HomeFragment.CATEGORY_NAME)!!
+            binding.tvCategoryCount.text="Total $mealListCount Recipes for $categoryName"
             categoryMealsAdapter.setMealsList(mealsList as ArrayList<MealsByCategory>)
         })
 
