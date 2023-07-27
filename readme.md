@@ -14,8 +14,14 @@ It is utilising:
 4. MVVM & LiveData : Saperate logic code from views and save the state in case the screen configuration changes.
 
 5. Coroutines : do some code in the background.
+
 6. View binding : instead of inflating views manually view binding will take care of that.
+
 7. Glide : Catch images and load them in imageView.
+
+## Screenshots
+
+<img src="https://github.com/gunishjain/FoodMVVM/blob/main/screenshots/1.png" width="200" height="400"> <img src="https://github.com/gunishjain/FoodMVVM/blob/main/screenshots/2.png" width="200" height="400">
 
 
 
